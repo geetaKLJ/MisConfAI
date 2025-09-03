@@ -1,1 +1,1 @@
-# ConfigurationVulDetect
+# MisConfAI
