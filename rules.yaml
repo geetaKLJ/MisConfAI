@@ -1,0 +1,241 @@
+rules:
+
+  # -------------------------
+  # Web Server Vulnerabilities
+  # -------------------------
+  - id: WS-001
+    cwe: "CWE-327"
+    description: "Use of deprecated SSL/TLS protocols"
+    severity: "HIGH"
+    file_types: [".conf", ".htaccess"]
+    keys: ["ssl_protocol", "ssl_ciphers"]
+    value_regex: ".*(SSLv3|TLSv1\\.0|TLSv1\\.1).*"
+    recommendation: "Upgrade to TLS 1.2 or higher."
+
+  - id: WS-002
+    cwe: "CWE-538"
+    description: "Directory listing is enabled"
+    severity: "MEDIUM"
+    file_types: [".conf", ".htaccess"]
+    keys: ["Options", "autoindex"]
+    value_regex: ".*(Indexes|on).*"
+    recommendation: "Disable directory listing using 'Options -Indexes'."
+
+  - id: WS-003
+    cwe: "CWE-209"
+    description: "Verbose error messages enabled"
+    severity: "MEDIUM"
+    file_types: [".conf", ".php"]
+    keys: ["display_errors", "error_reporting"]
+    value_regex: ".*(On|E_ALL).*"
+    recommendation: "Disable detailed errors in production."
+
+  - id: WS-004
+    cwe: "CWE-20"
+    description: "Unvalidated inputs in config"
+    severity: "HIGH"
+    file_types: [".conf"]
+    keys: ["input", "param"]
+    value_regex: ".*(\\$|%|{).*"
+    recommendation: "Sanitize all user input values."
+
+  - id: WS-005
+    cwe: "CWE-601"
+    description: "Open redirect misconfiguration"
+    severity: "MEDIUM"
+    file_types: [".conf"]
+    keys: ["redirect"]
+    value_regex: ".*(http://|https://).*"
+    recommendation: "Avoid hardcoded external redirects."
+
+  # -------------------------
+  # Application Configuration
+  # -------------------------
+  - id: APP-001
+    cwe: "CWE-312"
+    description: "Hardcoded credentials found"
+    severity: "CRITICAL"
+    file_types: [".env", ".yaml", ".json", ".properties"]
+    keys: ["password", "secret", "token"]
+    value_regex: "^(?!\\$\\{).*$"
+    recommendation: "Use secure secret management tools."
+
+  - id: APP-002
+    cwe: "CWE-489"
+    description: "Debug mode enabled"
+    severity: "HIGH"
+    file_types: [".yaml", ".json"]
+    keys: ["debug"]
+    value_regex: ".*true.*"
+    recommendation: "Disable debug mode in production."
+
+  - id: APP-003
+    cwe: "CWE-942"
+    description: "Overly permissive CORS policy"
+    severity: "MEDIUM"
+    file_types: [".yaml", ".json"]
+    keys: ["allowed_origins", "cors"]
+    value_regex: ".*\\*.*"
+    recommendation: "Restrict CORS to specific domains."
+
+  - id: APP-004
+    cwe: "CWE-614"
+    description: "Missing secure cookie flags"
+    severity: "HIGH"
+    file_types: [".yaml", ".json"]
+    keys: ["SESSION_COOKIE_SECURE", "COOKIE_HTTPONLY"]
+    value_regex: ".*(false|off).*"
+    recommendation: "Enable secure and HttpOnly cookie flags."
+
+  - id: APP-005
+    cwe: "CWE-330"
+    description: "Weak or default secrets used"
+    severity: "CRITICAL"
+    file_types: [".yaml", ".env", ".json"]
+    keys: ["SECRET_KEY"]
+    value_regex: ".*(123|default|changeme).*"
+    recommendation: "Use strong, randomly generated secrets."
+
+  # -------------------------
+  # Cloud Infrastructure
+  # -------------------------
+  - id: CLOUD-001
+    cwe: "CWE-284"
+    description: "Public access to cloud resource"
+    severity: "CRITICAL"
+    file_types: [".tf", ".yaml"]
+    keys: ["public_access", "cidr_blocks"]
+    value_regex: ".*(0\\.0\\.0\\.0/0|public).*"
+    recommendation: "Restrict to trusted IP ranges."
+
+  - id: CLOUD-002
+    cwe: "CWE-311"
+    description: "No encryption on cloud storage"
+    severity: "HIGH"
+    file_types: [".yaml", ".tf"]
+    keys: ["encryption", "server_side_encryption"]
+    value_regex: ".*(false|disabled).*"
+    recommendation: "Enable encryption for data at rest."
+
+  - id: CLOUD-003
+    cwe: "CWE-798"
+    description: "Hardcoded credentials in cloud configuration"
+    severity: "CRITICAL"
+    file_types: [".yaml", ".json"]
+    keys: ["access_key", "secret_key"]
+    value_regex: ".*(AKIA|ASIA|ghp_).*"
+    recommendation: "Use IAM roles or secrets manager."
+
+  - id: CLOUD-004
+    cwe: "CWE-732"
+    description: "Over-permissive IAM roles"
+    severity: "HIGH"
+    file_types: [".json", ".yaml"]
+    keys: ["Action"]
+    value_regex: ".*\\*.*"
+    recommendation: "Follow the principle of least privilege."
+
+  - id: CLOUD-005
+    cwe: "CWE-16"
+    description: "Default configurations left unchanged"
+    severity: "MEDIUM"
+    file_types: [".yaml", ".tf"]
+    keys: ["default"]
+    value_regex: ".*true.*"
+    recommendation: "Review and customize default values."
+
+  # -------------------------
+  # Database Configuration
+  # -------------------------
+  - id: DB-001
+    cwe: "CWE-287"
+    description: "Authentication bypass via 'skip-grant-tables'"
+    severity: "CRITICAL"
+    file_types: [".cnf", ".conf", ".yaml"]
+    keys: ["skip-grant-tables"]
+    value_regex: ".*(1|true).*"
+    recommendation: "Disable skip-grant-tables in production."
+
+  - id: DB-002
+    cwe: "CWE-284"
+    description: "Bind address to all interfaces"
+    severity: "HIGH"
+    file_types: [".cnf", ".conf"]
+    keys: ["bind-address", "listen_addresses"]
+    value_regex: ".*(0\\.0\\.0\\.0|\\*).*"
+    recommendation: "Restrict to localhost or internal IP."
+
+  - id: DB-003
+    cwe: "CWE-326"
+    description: "Weak SSL Cipher"
+    severity: "HIGH"
+    file_types: [".conf", ".yaml"]
+    keys: ["ssl_cipher"]
+    value_regex: ".*(RC4|MD5|DES).*"
+    recommendation: "Use strong ciphers like AES256."
+
+  - id: DB-004
+    cwe: "CWE-778"
+    description: "Audit logging is disabled"
+    severity: "MEDIUM"
+    file_types: [".conf", ".yaml"]
+    keys: ["log_error", "audit_log"]
+    value_regex: ".*(off|false|disabled).*"
+    recommendation: "Enable audit logging for traceability."
+
+  - id: DB-005
+    cwe: "CWE-20"
+    description: "Lack of input validation"
+    severity: "HIGH"
+    file_types: [".yaml", ".conf"]
+    keys: ["sanitize_inputs", "validate_inputs"]
+    value_regex: ".*(false|none).*"
+    recommendation: "Enable strict input validation."
+
+  # -------------------------
+  # DevOps / CI-CD
+  # -------------------------
+  - id: DEVOPS-001
+    cwe: "CWE-798"
+    description: "Secrets in CI/CD files"
+    severity: "CRITICAL"
+    file_types: [".yaml", ".yml", ".env"]
+    keys: ["password", "token", "api_key"]
+    value_regex: ".*=.*"
+    recommendation: "Use GitHub Secrets / Vault."
+
+  - id: DEVOPS-002
+    cwe: "CWE-250"
+    description: "Privileged container"
+    severity: "HIGH"
+    file_types: [".yaml", ".yml"]
+    keys: ["privileged"]
+    value_regex: ".*true.*"
+    recommendation: "Disable privileged mode."
+
+  - id: DEVOPS-003
+    cwe: "CWE-78"
+    description: "Insecure shell execution"
+    severity: "HIGH"
+    file_types: [".sh", ".yml"]
+    keys: ["script"]
+    value_regex: ".*(curl|wget).*http.*"
+    recommendation: "Verify scripts before execution."
+
+  - id: DEVOPS-004
+    cwe: "CWE-306"
+    description: "Unauthorized access to pipeline"
+    severity: "HIGH"
+    file_types: [".yml", ".yaml"]
+    keys: ["access_control"]
+    value_regex: ".*(none|public).*"
+    recommendation: "Limit access using auth roles."
+
+  - id: DEVOPS-005
+    cwe: "CWE-611"
+    description: "External entities enabled in XML parsing"
+    severity: "HIGH"
+    file_types: [".xml", ".yaml"]
+    keys: ["externalEntities"]
+    value_regex: ".*true.*"
+    recommendation: "Disable external entity resolution."
